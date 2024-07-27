@@ -1,3 +1,3 @@
 
-gen : gen.cu
-	nvcc -o gen gen.cu -arch=sm_70 -O3 -lcurand
+gen : gen.cpp
+	g++ -o gen gen.cpp -O3

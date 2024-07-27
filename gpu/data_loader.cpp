@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <assert.h>
 #include "data_loader.h"
+#include "mytools.h"
 using namespace std;
 
 template <typename T>
@@ -30,5 +31,4 @@ T* data_loader<T>::data() {
 }
 
 template class data_loader<unsigned long long>;
-template class data_loader<float>;
-template class data_loader<vec<64>>;
+template class data_loader<TP>;

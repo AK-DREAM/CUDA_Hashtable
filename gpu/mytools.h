@@ -7,6 +7,8 @@
     if (err != cudaSuccess) { \
         std::cerr << "CUDA Error: " << cudaGetErrorString(err) << std::endl; \
         exit(-1); \
+    } else { \
+        std::cerr << "OK!\n"; \
     } \
 }
 
@@ -24,3 +26,6 @@
         cudaEventElapsedTime(&msecTotal1, start1, stop1);   \
         printf("GPU time: %f\n", msecTotal1);  \
     } 
+
+#define BATCH_SIZE (1<<20)
+#define TP vec<64>
