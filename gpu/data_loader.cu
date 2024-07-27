@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <assert.h>
+#include <cuda_runtime.h>
 #include "data_loader.h"
 #include "mytools.h"
 using namespace std;
@@ -15,9 +16,21 @@ data_loader<T>::data_loader(const char *name) {
     fseek(IN, 0, SEEK_END);
     file_size = ftell(IN);
     rewind(IN);
-    buf = (T*)malloc(file_size);
-    fread(buf, 1, file_size, IN);
+    // buf = (T*)malloc(file_size);
+    cudaHostAlloc(&buf, file_size, cudaHostAllocMapped);
+
+    T* ptr = buf; long long res = file_size;
+    while (res > 0) {
+        size_t num = fread(ptr, 1, 1<<23, IN);
+        ptr += num; res -= (1<<23);
+        printf("%lld\n", res);
+    }
     fclose(IN);
+}
+
+template <typename T>
+data_loader<T>::~data_loader() {
+    cudaFreeHost(buf);
 }
 
 template <typename T>
@@ -31,4 +44,4 @@ T* data_loader<T>::data() {
 }
 
 template class data_loader<unsigned long long>;
-template class data_loader<TP>;
+template class data_loader<vec>;

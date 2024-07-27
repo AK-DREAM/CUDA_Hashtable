@@ -13,17 +13,18 @@ typedef unsigned long long ull;
     } \
 }
 
-const int N = 1000000;
+const int N = 5000000;
 mt19937_64 rng(time(0));
 ull keys[N+5], qry[N<<4|5];
 float vals[N<<6|5];
 
 int main() {
-    int n = 50000000, Q = 0;
+    int n = 200000000, Q = 0;
     ull mask = 0;
     mask = ~mask;
     FILE *F1 = fopen("./my.keys", "w");
     for (int i = 0; i < n; i += N) {
+        cerr << i << endl;
         int c = min(N,n-i);
         for (int j = 0; j < c; j++) {
             keys[j] = rng()&mask;
@@ -34,6 +35,7 @@ int main() {
     fclose(F1);
     FILE *F2 = fopen("./my.vals", "w");
     for (int i = 0; i < n; i += N) {
+        cerr << i << endl;
         int c = min(N,n-i);
         for (int j = 0; j < (c<<6); j++) vals[j] = rng()&63;
         fwrite(vals, 1, (c<<6)*sizeof(float), F2);
