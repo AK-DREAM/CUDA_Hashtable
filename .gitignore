@@ -1,2 +1,6 @@
-*.o
-main
+*
+!*.cu
+!*.h
+!*.cpp
+!*/
+!Makefile
