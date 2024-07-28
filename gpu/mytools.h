@@ -1,3 +1,5 @@
+#ifndef MYTOOLS
+#define MYTOOLS
 
 #define LOOP(i, n) \
     for (size_t i = threadIdx.x+blockIdx.x*blockDim.x; i < n; i += blockDim.x*gridDim.x) 
@@ -12,7 +14,7 @@
     } \
 }
 
-#define PERF_GPU(behavior)             \
+#define PERF_GPU(Sum, behavior)             \
     {                                       \
         cudaEvent_t start1;                 \
         cudaEventCreate(&start1);           \
@@ -24,8 +26,8 @@
         cudaEventSynchronize(stop1);        \
         float msecTotal1 = 0.0f;            \
         cudaEventElapsedTime(&msecTotal1, start1, stop1);   \
+        Sum += msecTotal1; \
         printf("GPU time: %f\n", msecTotal1);  \
     } 
 
-#define BATCH_SIZE (1<<20)
-#define TP vec<64>
+#endif

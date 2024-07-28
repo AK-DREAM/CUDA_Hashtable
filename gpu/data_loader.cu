@@ -1,47 +1,54 @@
 #include <cstdio>
 #include <cstdlib>
 #include <assert.h>
+#include <iostream>
 #include <cuda_runtime.h>
 #include "data_loader.h"
 #include "mytools.h"
+#include "value_saver.h"
 using namespace std;
+typedef unsigned long long ull;
 
-template <typename T>
-data_loader<T>::data_loader(const char *name) {
+data_loader::data_loader() {
+    cudaHostAlloc(&keybuf, 2ull<<30, cudaHostAllocMapped);
+    cudaHostAlloc(&valbuf, 2ull<<30, cudaHostAllocMapped);
+}
+
+data_loader::~data_loader() {
+    cudaFreeHost(keybuf);
+    cudaFreeHost(valbuf);
+}
+
+size_t data_loader::load_keyfile(const char *name) {
     FILE *IN = fopen(name, "rb");
-    if (IN == nullptr) {
-        puts("ERROR");
-        assert(0);
-    }
     fseek(IN, 0, SEEK_END);
-    file_size = ftell(IN);
+    size_t file_size = ftell(IN);
     rewind(IN);
-    // buf = (T*)malloc(file_size);
-    cudaHostAlloc(&buf, file_size, cudaHostAllocMapped);
 
-    T* ptr = buf; long long res = file_size;
-    while (res > 0) {
-        size_t num = fread(ptr, 1, 1<<23, IN);
-        ptr += num; res -= (1<<23);
-        printf("%lld\n", res);
+    ull *ptr = keybuf; ull res = 0;
+    while (res < file_size) {
+        size_t num = fread(ptr, 1, 1ull<<30, IN);
+        ptr += num/sizeof(ull); res += num;
     }
     fclose(IN);
+    return file_size/sizeof(ull);
+}
+size_t data_loader::load_valfile(const char *name) {
+    FILE *IN = fopen(name, "rb");
+    fseek(IN, 0, SEEK_END);
+    size_t file_size = ftell(IN);
+    rewind(IN);
+
+    size_t siz = fread(valbuf, 1, 1<<30, IN);
+
+    fclose(IN);
+    return siz;
 }
 
-template <typename T>
-data_loader<T>::~data_loader() {
-    cudaFreeHost(buf);
+ull* data_loader::keydata() {
+    return keybuf;
 }
 
-template <typename T>
-size_t data_loader<T>::count() {
-    return file_size/sizeof(T);
+vec* data_loader::valdata() {
+    return valbuf;
 }
-
-template <typename T>
-T* data_loader<T>::data() {
-    return buf;
-}
-
-template class data_loader<unsigned long long>;
-template class data_loader<vec>;

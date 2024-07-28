@@ -1,18 +1,23 @@
+#ifndef DATA_LOADER 
+#define DATA_LOADER
+
 #include <cstddef>
+#include "myvec.h"
+#include "value_saver.h"
+typedef unsigned long long ull;
 
-struct vec {
-    float v[8];
-};
-
-template <typename T>
 class data_loader {
 public:
-    data_loader(const char *name);
+    data_loader();
     ~data_loader();
-    size_t count();
-    T* data();
-
+    size_t load_keyfile(const char *name);
+    size_t load_valfile(const char *name);
+    ull* keydata();
+    vec* valdata();
+    bool onDevice();
 private:
-    T *buf; 
-    size_t file_size;
+    ull *keybuf;
+    vec *valbuf;
 };
+
+#endif

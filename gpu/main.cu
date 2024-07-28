@@ -8,34 +8,33 @@
 using namespace std;
 typedef unsigned long long ull;
 
+int n = 100;
+int pt[] = {0,10,20,50,100};
+
 int main() {
-    data_loader<ull> data_Keys("../data/my2.keys");
-    data_loader<vec> data_Vals("../data/my2.vals");
-
     dinner123 Hashtable;
-    ull *Ans; // = (ull*)malloc(data_Keys.count()*sizeof(ull));
-    // cudaMallocHost(&Ans, data_Keys.count()*sizeof(ull));
-    cudaHostAlloc(&Ans, data_Keys.count()*sizeof(ull), cudaHostAllocMapped);
-    bool *Ok; // = (bool*)malloc(data_Keys.count()*sizeof(bool));; 
-    // cudaMallocHost(&Ok, data_Keys.count()*sizeof(bool));
-    cudaHostAlloc(&Ok, data_Keys.count()*sizeof(bool), cudaHostAllocMapped);
-
-    PERF_GPU(
-        Hashtable.insert(data_Keys.count(), data_Keys.data(), (ull)data_Vals.data());
-    );
-    CUDA_CHECK_ERROR();
-    PERF_GPU(
-        Hashtable.query(data_Keys.count(), data_Keys.data(), Ans, Ok);
-    );
-    CUDA_CHECK_ERROR();
-    
-    int cnt = data_Keys.count();
-    printf("%d\n", cnt);
-    for (int i = 0; i < 1; i++) if (Ok[i]) {
-        for (int j = 0; j < 64; j++) printf("%f ", ((vec*)Ans[i])->v[j]);
-        puts("");
+    cerr << "Initialized\n";
+    for (int t = 0; t < 4; t++) {
+        for (int i = pt[t]; i < pt[t+1]; i++) {
+            cerr << "insert: " << i << endl;
+            string name = "data/A/part_"+to_string(i);
+            Hashtable.Insert((name+".keys").c_str(), (name+".vals").c_str());
+            // cerr << "insert: " << i << " OK\n";
+        }
+        for (int i = pt[t]; i < pt[t+1]; i++) {
+            cerr << "find: " << i << endl;
+            string name = "data/A/part_"+to_string(i);
+            Hashtable.Find((name+".keys").c_str());
+            // cerr << "find: " << i << " OK\n";
+        }
     }
-    cudaFreeHost(Ans);
-    cudaFreeHost(Ok);
+    // Hashtable.Find("data/A/part_50.keys");
+
+    for (int i = 0; i < 100; i++) {
+        string name = "data/A/part_"+to_string(i);
+        system(("diff "+name+".vals "+name+".myvals").c_str());
+    }
+
+    fprintf(stderr, "Insert Time: %f\nFind Time: %f\n", Hashtable.insTime, Hashtable.fndTime);
     return 0;
 }
